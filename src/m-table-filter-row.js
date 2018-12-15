@@ -75,7 +75,7 @@ class MTableFilterRow extends React.Component {
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            <Icon>filter_list</Icon>
+            <this.props.icons.Filter/>
           </InputAdornment>
         )
       }}
@@ -120,6 +120,10 @@ class MTableFilterRow extends React.Component {
   }
 
   getComponentForColumn(columnDef) {
+    if(columnDef.filtering === false) {
+      return null;
+    }
+
     if (columnDef.field) {
       if (columnDef.lookup) {
         return this.renderLookupFilter(columnDef);
@@ -146,11 +150,16 @@ class MTableFilterRow extends React.Component {
           <Checkbox onChange={this.props.onFilterSelectionChanged} />
         </TableCell>)
       );
-    } else if (this.props.emptyCell) {
+    }
+    if (this.props.emptyCell && this.props.hasActions) {
       if (this.props.actionsColumnIndex === -1) {
         columns.push(<TableCell />);
       } else {
-        columns.splice(this.props.actionsColumnIndex, 0, <TableCell />);
+        let endPos = 0;
+        if (this.props.selection) {
+          endPos = 1;
+        }
+        columns.splice(this.props.actionsColumnIndex + endPos, 0, <TableCell />);
       }
     }
 
@@ -165,7 +174,8 @@ class MTableFilterRow extends React.Component {
 MTableFilterRow.defaultProps = {
   emptyCell: false,
   columns: [],
-  selection: false
+  selection: false,
+  hasActions: false,
 };
 
 MTableFilterRow.propTypes = {
@@ -173,7 +183,9 @@ MTableFilterRow.propTypes = {
   columns: PropTypes.array.isRequired,
   onFilterChanged: PropTypes.func.isRequired,
   selection: PropTypes.bool.isRequired,
-  onFilterSelectionChanged: PropTypes.func.isRequired
+  onFilterSelectionChanged: PropTypes.func.isRequired,
+  actionsColumnIndex: PropTypes.number,
+  hasActions: PropTypes.bool,
 };
 
 export default MTableFilterRow;

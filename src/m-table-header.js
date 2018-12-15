@@ -21,7 +21,7 @@ class MTableHeader extends React.Component {
               direction={this.props.orderDirection || 'asc'}
               onClick={() => {
                 const orderDirection = columnDef.tableData.id !== this.props.orderBy ? 'asc' : this.props.orderDirection === 'asc' ? 'desc' : 'asc';
-                this.props.onOrderChanged(columnDef.tableData.id, orderDirection);
+                this.props.onOrderChange(columnDef.tableData.id, orderDirection);
               }}
             >
               {columnDef.title}
@@ -53,16 +53,22 @@ class MTableHeader extends React.Component {
   }
   render() {
     const headers = this.renderHeader();
-
     if (this.props.hasSelection) {
       headers.splice(0, 0, this.renderSelectionHeader());
-    } else if (this.props.showActionsColumn) {
+    }
+
+    if (this.props.showActionsColumn) {
       if (this.props.actionsHeaderIndex >= 0) {
-        headers.splice(this.props.actionsHeaderIndex, 0, this.renderActionsHeader());
+        let endPos = 0;
+        if (this.props.hasSelection) {
+          endPos = 1;
+        }
+        headers.splice(this.props.actionsHeaderIndex + endPos, 0, this.renderActionsHeader());
       } else if (this.props.actionsHeaderIndex === -1) {
         headers.push(this.renderActionsHeader());
       }
     }
+
     return (
       <TableHead>
         <TableRow>
@@ -92,10 +98,11 @@ MTableHeader.propTypes = {
   selectedCount: PropTypes.number,
   sorting: PropTypes.bool,
   onAllSelected: PropTypes.func,
-  onOrderChanged: PropTypes.func,
+  onOrderChange: PropTypes.func,
   orderBy: PropTypes.number,
   orderDirection: PropTypes.string,
-  actionsHeaderIndex: PropTypes.number
+  actionsHeaderIndex: PropTypes.number,
+  showActionsColumn: PropTypes.bool,
 };
 
 export default MTableHeader;

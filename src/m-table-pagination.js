@@ -1,10 +1,7 @@
 /* eslint-disable no-unused-vars */
+import { Icon, IconButton, withStyles } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import * as React from 'react';
-import {
-  Icon, IconButton,
-  TableFooter, TableRow, TablePagination,
-  Typography, withStyles
-} from '@material-ui/core';
 /* eslint-enable no-unused-vars */
 
 class MTablePaginationInner extends React.Component {
@@ -36,29 +33,29 @@ class MTablePaginationInner extends React.Component {
           onClick={this.handleFirstPageButtonClick}
           disabled={page === 0}
           aria-label="First Page"
-        >
-          <Icon>first_page</Icon>
+        >          
+          <this.props.icons.FirstPage/>
         </IconButton>
         <IconButton
           onClick={this.handleBackButtonClick}
           disabled={page === 0}
           aria-label="Previous Page"
         >
-          <Icon>chevron_left</Icon>
+          <this.props.icons.PreviousPage/>
         </IconButton>
         <IconButton
           onClick={this.handleNextButtonClick}
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Next Page"
         >
-          <Icon>chevron_right</Icon>
+          <this.props.icons.NextPage/>
         </IconButton>
         <IconButton
           onClick={this.handleLastPageButtonClick}
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Last Page"
         >
-          <Icon>last_page</Icon>
+          <this.props.icons.LastPage/>
         </IconButton>
       </div>
     );
@@ -72,6 +69,14 @@ const actionsStyles = theme => ({
     marginLeft: theme.spacing.unit * 2.5
   }
 });
+
+MTablePaginationInner.propTypes = {
+  onChangePage: PropTypes.func,
+  page: PropTypes.number,
+  count: PropTypes.number,
+  rowsPerPage: PropTypes.number,
+  classes: PropTypes.object
+};
 
 const MTablePagination = withStyles(actionsStyles, { withTheme: true })(MTablePaginationInner);
 

@@ -1,16 +1,10 @@
 /* eslint-disable no-unused-vars */
-import * as React from 'react';
-import classNames from 'classnames';
-import MTableActions from './m-table-actions';
-import PropTypes from 'prop-types';
-import {
-  Icon, IconButton, Menu,
-  MenuItem, Toolbar, Tooltip,
-  Typography, withStyles, Checkbox,
-  FormControlLabel, TextField, InputAdornment
-} from '@material-ui/core';
-import { CsvBuilder } from 'filefy';
+import { Checkbox, FormControlLabel, Icon, IconButton, InputAdornment, Menu, MenuItem, TextField, Toolbar, Tooltip, Typography, withStyles } from '@material-ui/core';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
+import classNames from 'classnames';
+import { CsvBuilder } from 'filefy';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 /* eslint-enable no-unused-vars */
 
 class MTableToolbar extends React.Component {
@@ -32,7 +26,8 @@ class MTableToolbar extends React.Component {
       columns.map(columnDef => rowData[columnDef.field])
     );
 
-    const builder = new CsvBuilder((this.props.title || 'data') + '.csv') // eslint-disable-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
+    const builder = new CsvBuilder((this.props.title || 'data') + '.csv')
       .setColumns(columns.map(columnDef => columnDef.title))
       .addRows(data)
       .exportFile();
@@ -40,35 +35,47 @@ class MTableToolbar extends React.Component {
     this.setState({ exportButtonAnchorEl: null });
   }
 
+  renderSearch() {
+    if (this.props.search) {
+      return (        
+        <TextField
+          value={this.props.searchText}
+          onChange={event => this.props.onSearchChanged(event.target.value)}
+          color="inherit"          
+          InputProps={{            
+            startAdornment: (
+              <InputAdornment position="start">                
+                <this.props.icons.Search color="inherit"/>
+              </InputAdornment>
+            )
+          }}
+        />
+      );
+    }
+    else {
+      return null;
+    }
+  }
+
   renderDefaultActions() {
     return (
-      <div>
-        {this.props.search &&
-          <TextField
-            value={this.props.searchText}
-            onChange={event => this.props.onSearchChanged(event.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Icon>search</Icon>
-                </InputAdornment>
-              )
-            }}
-          />
-        }
+      <div>        
+        {this.renderSearch()}        
         {this.props.columnsButton &&
-          <span>
-            <Tooltip title="Show Columns">
+          <span>    
+            <Tooltip title="Show Columns">            
               <IconButton
-                onClick={event => this.setState({ columnsButtonAnchorEl: event.currentTarget }) }
-                aria-label="Show Columns">
-                <Icon>view_column</Icon>
+                color="inherit"
+                onClick={event => this.setState({ columnsButtonAnchorEl: event.currentTarget })}
+                aria-label="Show Columns">                
+                
+                <this.props.icons.ViewColumn/>
               </IconButton>
             </Tooltip>
             <Menu
               anchorEl={this.state.columnsButtonAnchorEl}
               open={Boolean(this.state.columnsButtonAnchorEl)}
-              onClose={() => this.setState({ columnsButtonAnchorEl: null }) }>
+              onClose={() => this.setState({ columnsButtonAnchorEl: null })}>
               {
                 this.props.columns.map((col, index) => {
                   return (
@@ -83,7 +90,7 @@ class MTableToolbar extends React.Component {
                               columns[index].hidden = !checked;
                               this.props.onColumnsChanged(columns);
                             }
-                            }/>
+                            } />
                         }
                       />
                     </MenuItem>
@@ -97,9 +104,10 @@ class MTableToolbar extends React.Component {
           <span>
             <Tooltip title="Export">
               <IconButton
-                onClick={event => this.setState({ exportButtonAnchorEl: event.currentTarget }) }
+                color="inherit"
+                onClick={event => this.setState({ exportButtonAnchorEl: event.currentTarget })}
                 aria-label="Show Columns">
-                <Icon>save_alt</Icon>
+                <this.props.icons.Export/>
               </IconButton>
             </Tooltip>
             <Menu
@@ -114,8 +122,17 @@ class MTableToolbar extends React.Component {
           </span>
 
         }
-        <MTableActions actions={this.props.actions && this.props.actions.filter(a => { return a.isFreeAction })}/>
+        <this.props.components.Actions actions={this.props.actions && this.props.actions.filter(a => a.isFreeAction)} />
       </div>
+    );
+  }
+
+  renderSelectedActions() {
+    return (
+      <React.Fragment>        
+        {this.renderSearch()}
+        <this.props.components.Actions actions={this.props.actions.filter(a => !a.isFreeAction)} data={this.props.selectedRows} />
+      </React.Fragment>
     );
   }
 
@@ -123,7 +140,7 @@ class MTableToolbar extends React.Component {
     return (
       <div>
         {this.props.selectedRows && this.props.selectedRows.length > 0
-          ? <MTableActions actions={this.props.actions.filter(a => { return !a.isFreeAction })} data={this.props.selectedRows}/>
+          ? this.renderSelectedActions()
           : this.renderDefaultActions()
         }
       </div>
@@ -139,7 +156,7 @@ class MTableToolbar extends React.Component {
           <Typography variant="h6">{title}</Typography>
         </div>
         <div className={classes.spacer} />
-        <div className={classes.actions}>
+        <div className={classes.actions}>    
           {this.renderActions()}
         </div>
       </Toolbar>
@@ -168,7 +185,10 @@ MTableToolbar.propTypes = {
   search: PropTypes.bool.isRequired,
   searchText: PropTypes.string.isRequired,
   selectedRows: PropTypes.array,
-  title: PropTypes.string.isRequired
+  title: PropTypes.string.isRequired,
+  renderData: PropTypes.array,
+  exportButton: PropTypes.bool,
+  classes: PropTypes.object
 };
 
 const styles = theme => ({
@@ -189,7 +209,7 @@ const styles = theme => ({
     flex: '1 1 10%'
   },
   actions: {
-    color: theme.palette.text.secondary
+    color: theme.palette.text.secondary,
   },
   title: {
     flex: '0 0 auto'
